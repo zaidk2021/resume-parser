@@ -24,7 +24,8 @@ with open(CONFIG_PATH) as file:
 genai.configure(api_key=api_key)
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={
+     r"/*": {"origins": "https://nextgen-navigator.vercel.app"}})
 
 @app.route('/')
 def index():
