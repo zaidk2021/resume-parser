@@ -31,9 +31,10 @@ def index():
     """Upload PDF page."""
     return render_template('index.html')
 
+
 @app.route('/process', methods=["POST"])
 def process_resume():
-    """Extract text from PDF, run Gemini, pass raw JSON to template."""
+    """Extract text from PDF without saving it locally."""
     try:
         # 1. Check if file is uploaded
         if 'pdf_doc' not in request.files:
@@ -43,32 +44,39 @@ def process_resume():
         if not doc.filename.endswith('.pdf'):
             return "Error: Only PDF files are allowed", 400
 
-        filename = secure_filename(doc.filename)
-        doc_path = os.path.join(UPLOAD_PATH, filename)
-        doc.save(doc_path)
-
-        # 2. Extract text from PDF
-        raw_text = _read_file_from_path(doc_path)
+        # 2. Read file from memory (stream)
+        raw_text = _read_file_from_memory(doc)
         if not raw_text:
             logging.error("No text extracted from PDF.")
             return "Error: No text extracted from PDF", 400
 
-        # 3. Get raw JSON string from Gemini (no python parsing)
+        # 3. Get raw JSON string from Gemini
         parsed_json_string = ats_extractor(raw_text)
         if not parsed_json_string:
             logging.error("Gemini parsing failed.")
             return "Error: Failed to parse the resume.", 500
 
-        # 4. Log it for debugging
         logging.info(f"Raw JSON from Gemini:\n{parsed_json_string}")
 
-        # 5. Pass directly to the template, no json.loads in Python
-        # Optionally, add a button here (in form.html) to jump to the ATS evaluation page.
         return parsed_json_string
 
     except Exception as e:
         logging.error(f"Error during processing: {e}")
         return "An unexpected error occurred.", 500
+
+
+def _read_file_from_memory(file):
+    """Reads and extracts text from an in-memory PDF file."""
+    try:
+        reader = PdfReader(file)  # Read directly from memory
+        data = ""
+        for page_no in range(min(5, len(reader.pages))):  # Limit pages to save memory
+            data += reader.pages[page_no].extract_text() or ""
+        logging.info(f"Extracted Text (first 200 chars): {data[:200]}")
+        return data
+    except Exception as e:
+        logging.error(f"Error reading PDF: {e}")
+        return ""
 
 @app.route('/submit', methods=["POST"])
 def submit_details():
@@ -86,18 +94,18 @@ def submit_details():
         logging.error(f"Error during submission: {e}")
         return "An unexpected error occurred.", 500
 
-def _read_file_from_path(path):
-    """Reads and extracts text from a PDF file."""
-    try:
-        reader = PdfReader(path)
-        data = ""
-        for page_no in range(len(reader.pages)):
-            data += reader.pages[page_no].extract_text() or ""
-        logging.info(f"Extracted Text (first 200 chars): {data[:200]}")
-        return data
-    except Exception as e:
-        logging.error(f"Error reading PDF file: {e}")
-        return ""
+# def _read_file_from_path(path):
+#     """Reads and extracts text from a PDF file."""
+#     try:
+#         reader = PdfReader(path)
+#         data = ""
+#         for page_no in range(len(reader.pages)):
+#             data += reader.pages[page_no].extract_text() or ""
+#         logging.info(f"Extracted Text (first 200 chars): {data[:200]}")
+#         return data
+#     except Exception as e:
+#         logging.error(f"Error reading PDF file: {e}")
+#         return ""
 
 def ats_extractor(resume_data):
     """
