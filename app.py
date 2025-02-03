@@ -1,3 +1,4 @@
+from flask import Flask
 import os
 import logging
 from flask import Flask, jsonify, request, render_template
@@ -23,9 +24,11 @@ with open(CONFIG_PATH) as file:
 # Configure the Gemini API client
 genai.configure(api_key=api_key)
 
+
 app = Flask(__name__)
 CORS(app, resources={
-     r"/*": {"origins": "https://nextgen-navigator.vercel.app"}})
+     r"/*": {"origins": "https://nextgen-navigator.vercel.app"}}, supports_credentials=True)
+
 
 @app.route('/')
 def index():
@@ -95,18 +98,6 @@ def submit_details():
         logging.error(f"Error during submission: {e}")
         return "An unexpected error occurred.", 500
 
-# def _read_file_from_path(path):
-#     """Reads and extracts text from a PDF file."""
-#     try:
-#         reader = PdfReader(path)
-#         data = ""
-#         for page_no in range(len(reader.pages)):
-#             data += reader.pages[page_no].extract_text() or ""
-#         logging.info(f"Extracted Text (first 200 chars): {data[:200]}")
-#         return data
-#     except Exception as e:
-#         logging.error(f"Error reading PDF file: {e}")
-#         return ""
 
 def ats_extractor(resume_data):
     """
