@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>ATS Score Result</title>
+</head>
+<body class="bg-gray-900 p-8 text-white">
+  <h1 class="text-3xl font-bold mb-6">ATS Score Result</h1>
+  <div id="result" class="space-y-4">
+    <p class="text-xl">ATS Score: <span class="font-bold">{{ ats_result.ats_score }}</span></p>
+    <h2 class="text-lg">Missing Skills/Qualifications:</h2>
+    {% if ats_result.missing_skills %}
+      <ul class="list-disc pl-5">
+        {% for skill in ats_result.missing_skills %}
+          <li>{{ skill }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>None – the resume meets all the requirements!</p>
+    {% endif %}
+  </div>
+</body>
+</html>

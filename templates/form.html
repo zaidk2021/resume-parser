@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Resume Details</title>
+</head>
+<body class="bg-gray-900 p-8 text-white">
+  <h1 class="text-3xl font-bold mb-6">Edit and Submit Parsed Details</h1>
+
+  <!-- The empty form we will populate using JavaScript -->
+  <form id="resumeForm" action="/submit" method="post" class="space-y-4"></form>
+
+  <script>
+    // This is the raw JSON string from Gemini (no python parsing).
+    const rawJsonString = `{{ json_data|safe }}`;
+
+    const form = document.getElementById('resumeForm');
+
+    try {
+      // Attempt to parse the JSON client-side
+      const data = JSON.parse(rawJsonString);
+
+      // Dynamically build inputs for each key-value
+      Object.keys(data).forEach(key => {
+        const value = data[key];
+
+        // Create a container div
+        const div = document.createElement('div');
+
+        // Create label
+        const label = document.createElement('label');
+        label.className = 'block text-sm font-medium text-gray-200';
+        label.textContent = key;
+        div.appendChild(label);
+
+        // If it's a simple string, just use a text input
+        // If it's an array or object, you might handle differently
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = key;
+        input.value = (typeof value === 'string') ? value : JSON.stringify(value);
+        input.className = 'mt-1 block w-full rounded-md bg-gray-700 text-white p-2 border border-gray-500';
+
+        div.appendChild(input);
+        form.appendChild(div);
+      });
+
+      // Add a submit button at the end
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'submit';
+      submitBtn.textContent = 'Submit Details';
+      submitBtn.className = 'bg-blue-500 px-8 py-2 rounded-2xl text-white font-semibold hover:bg-blue-400/90';
+      form.appendChild(submitBtn);
+
+    } catch (err) {
+      // If JSON.parse fails, display an error
+      console.error("Failed to parse JSON. Error:", err);
+
+      const errorMsg = document.createElement('p');
+      errorMsg.className = 'text-red-400';
+      errorMsg.textContent = 'Error: Unable to parse JSON data from Gemini.';
+      form.appendChild(errorMsg);
+    }
+  </script>
+</body>
+</html>

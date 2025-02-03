@@ -1,0 +1,8 @@
+flask
+pypdf
+Flask
+Flask-Cors
+google-generativeai
+PyYAML
+werkzeug
+gunicorn
