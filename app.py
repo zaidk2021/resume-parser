@@ -29,7 +29,6 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 
-
 @app.route('/')
 def index():
     """Upload PDF page."""
@@ -82,6 +81,7 @@ def _read_file_from_memory(file):
         logging.error(f"Error reading PDF: {e}")
         return ""
 
+
 @app.route('/submit', methods=["POST"])
 def submit_details():
     """Handle the final form submission (if needed)."""
@@ -90,10 +90,11 @@ def submit_details():
         logging.info(f"User-submitted details: {submitted_data}")
         # You might want to redirect the user to the ATS evaluation page here.
         # For example, pass the resume JSON as a query parameter:
-        resume_json = json.dumps(submitted_data)  # or however you want to pass it
+        # or however you want to pass it
+        resume_json = json.dumps(submitted_data)
         # return render_template('ats.html', resume_json=resume_json)
         return resume_json
-    
+
     except Exception as e:
         logging.error(f"Error during submission: {e}")
         return "An unexpected error occurred.", 500
@@ -105,20 +106,40 @@ def ats_extractor(resume_data):
     Returns the raw JSON text as a string (no python parsing).
     """
     prompt = f"""
-    You are an AI bot designed to parse resumes. Given the resume below, extract:
-    1. Full name
-    2. Email ID
-    3. GitHub portfolio
-    4. LinkedIn ID
-    5. Employment details
-    6. Technical skills
-    7. Soft skills
+You are an AI bot designed to parse resumes. Given the resume below, extract key details and return only a valid JSON object in the following format:
 
-    Return valid JSON only, with no extra text outside the JSON object.
+{{
+    "fullName": "",
+    "email": "",
+    "github": "",
+    "linkedIn": "",
+    "employmentDetails": [
+        {{
+            "company": "",
+            "position": "",
+            "startDate": "",
+            "endDate": "",
+            "responsibilities": []
+        }}
+    ],
+    "technicalSkills": {{
+        "languages": [],
+        "frameworks": [],
+        "developerTools": [],
+        "libraries": []
+    }},
+    "softSkills": []
+}}
 
-    Resume:
-    {resume_data}
-    """
+### **Constraints:**
+- Ensure correct extraction of details without hallucinating information.
+- If a field is missing in the resume, return an empty string or empty array as applicable.
+- Do **not** include any extra text or explanations outside the JSON object.
+
+**Resume:**  
+{resume_data}
+"""
+
     try:
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt, stream=True)
@@ -148,7 +169,7 @@ def ats_extractor(resume_data):
 def ats_score():
 
     # Get resume JSON and job description from the POST request
-    data = request.get_json()  
+    data = request.get_json()
 
     resume_json = data.get('resume_json')
     job_description = data.get('job_description')
@@ -201,5 +222,7 @@ def ats_score_extractor(resume_json, job_description):
     except Exception as e:
         logging.error(f"Error in ats_score_extractor: {e}")
         return None
+
+
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
