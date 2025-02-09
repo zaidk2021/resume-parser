@@ -8,8 +8,10 @@
 </head>
 <body class="bg-gray-900 p-8 text-white">
   <h1 class="text-3xl font-bold mb-6">ATS Score Result</h1>
+  
   <div id="result" class="space-y-4">
     <p class="text-xl">ATS Score: <span class="font-bold">{{ ats_result.ats_score }}</span></p>
+    
     <h2 class="text-lg">Missing Skills/Qualifications:</h2>
     {% if ats_result.missing_skills %}
       <ul class="list-disc pl-5">
@@ -21,5 +23,16 @@
       <p>None – the resume meets all the requirements!</p>
     {% endif %}
   </div>
-</body>
+
+  <!-- Form to Generate Resume -->
+  <form id="generateResumeForm" action="/generate_resume_html" method="post">
+    <input type="hidden" name="missing_skills" value='{{ ats_result.missing_skills | tojson | safe }}'>
+
+    <button type="submit" class="mt-6 bg-blue-500 px-8 py-2 rounded-2xl text-white font-semibold hover:bg-blue-400/90">
+      Generate Full Resume with AI
+    </button>
+</form>
+
+</form>
+
 </html>

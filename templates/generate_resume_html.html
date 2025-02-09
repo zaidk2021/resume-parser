@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - {{ full_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; padding: 20px; background-color: #f8f9fa; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h1, h2 { color: #343a40; }
+        .section { margin-bottom: 20px; }
+        .contact, .education, .skills, .experience, .research, .projects, .activities { padding: 10px; border-left: 4px solid #007bff; background: #e9ecef; margin-bottom: 15px; }
+        ul { list-style-type: none; padding: 0; }
+        ul li { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ full_name }}</h1>
+        <p>{{ location }}</p>
+        <p>{{ email }} | {{ phone }}</p>
+        <p>
+            <a href="{{ linkedin }}">LinkedIn</a> | 
+            <a href="{{ github }}">GitHub</a> | 
+            <a href="{{ leetcode }}">LeetCode</a>
+        </p>
+
+        <div class="section education">
+            <h2>Education</h2>
+            <ul>
+                {% for edu in education %}
+                    <li><strong>{{ edu }}</strong></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="section skills">
+            <h2>Technical Skills</h2>
+            <ul>
+                <li><strong>Core Skills:</strong> {{ core_skills }}</li>
+                <li><strong>Databases:</strong> {{ databases }}</li>
+                <li><strong>Machine Learning:</strong> {{ machine_learning }}</li>
+                <li><strong>Soft Skills:</strong> {{ soft_skills }}</li>
+                <li><strong>Additional Missing Skills:</strong> {{ missing_skills|join(", ") }}</li>
+            </ul>
+        </div>
+
+        <div class="section experience">
+            <h2>Experience</h2>
+            <ul>
+                {% for exp in experience %}
+                    <li><strong>{{ exp.title }}</strong> ({{ exp.date }})
+                        <ul>
+                            {% for detail in exp.details %}
+                                <li>{{ detail }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="section projects">
+            <h2>Notable Projects</h2>
+            <ul>
+                {% for project in projects %}
+                    <li><strong>{{ project.name }} [<a href="{{ project.link }}">GitHub</a>]</strong></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="section activities">
+            <h2>Leadership & Extracurricular Activities</h2>
+            <ul>
+                {% for activity in activities %}
+                    <li><strong>{{ activity.title }}:</strong> {{ activity.details }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
