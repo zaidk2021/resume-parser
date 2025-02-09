@@ -25,7 +25,7 @@ with open(CONFIG_PATH) as file:
 genai.configure(api_key=api_key)
 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 # Define raw_text globally
 raw_text = ""
