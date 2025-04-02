@@ -1,1 +1,1 @@
-Part of Amdocs GenAI hackathon.
+Part of Amdocs GenAI hackathon 2025.
